@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Hacking Diabetes</title>
+    <script type="text/javascript" src="https://www.google.com/jsapi"></script>
+    <script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
+    <script type="text/javascript">
+      google.load("visualization", "1", {packages:["corechart"]});
+      google.load("visualization", "1", {packages:["gauge"]});
+      google.setOnLoadCallback(drawChart);
+      google.setOnLoadCallback(drawGaugeChart);
+
+      function drawGaugeChart() {
+		var redFrom = 30;
+		var redTo = 10;
+		var yellowFrom = 8;
+		var yellowTo = 10;
+
+	    $.getJSON("http://wotkit.sensetecnic.com/api/sensors/mike.blood-sensor/data?beforeE=1", function(data){
+			var chartData = google.visualization.arrayToDataTable([
+			  ['Label', 'Value'],
+			  ['Glucose', data[0].value]
+			]);
+
+			var options = {
+			  width: 400, height: 400,
+			  min: 0, max: 33,
+			  greenFrom: 4, greenTo: 7,
+			  redFrom: 15, redTo: 33,
+			  //yellowFrom: 10, yellowTo: 15,
+			  minorTicks: 3
+			};
+
+			var chart = new google.visualization.Gauge(document.getElementById('gauge_div'));
+			chart.draw(chartData, options);
+        });
+      }
+
+      function drawChart() {
+      	var x = [['Date', 'Value']];
+
+	    $.getJSON("http://wotkit.sensetecnic.com/api/sensors/mike.blood-sensor/data?beforeE=20", function(data){
+		    $.each(data, function(key, data){
+				//alert( key + ": " + data );
+				var node = [data.displayTime, data.value];
+				x.push(node);
+		    });
+
+			var data = google.visualization.arrayToDataTable(x);
+
+			var options = {
+			  title: 'Glucose Level'
+			};
+
+			var chart = new google.visualization.LineChart(document.getElementById('chart_div'));
+			chart.draw(data, options);
+        });
+      }
+    </script>
+</head>
+<body>
+    <div id="chart_div" style="width: 1300px; height: 700px;"></div>
+    <div id="gauge_div" style="width: 500px; height: 500px;"></div>
+</body>
+</html>
